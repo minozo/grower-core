@@ -1,0 +1,12 @@
+{
+  "name": "grower-core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "比較メディア共通のgrower（オーケストレーター＋ゲート＋scout＋measure＋autorun）。サイト非依存。各サイトdirで cwd ベースに動く。",
+  "bin": {
+    "grow": "./orchestrator.mjs"
+  },
+  "scripts": {
+    "selftest": "node orchestrator.mjs --selftest"
+  }
+}
