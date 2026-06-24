@@ -22,6 +22,11 @@ slop-lint(§7 `article-writing-rules.md`) / linkcheck / datecheck / dedup-compan
 ## ガードレール
 G1 捏造ゼロ(企業は実在URL・サイト記載のみ) / G2 アンチslop+E-E-A-T / G3 共食い禁止 / 速度上限(週)。
 
+## VPS自動運転（ops/ ＝サイト非依存・全サイト共有）
+`ops/run-grower.sh <repo-dir>`＝週次ランナー（core pull→対象サイトを`publishBranches[0]`に同期→`grow weekly`+`autorun`→ログ掃除）。branch/siteNameは対象の`grower.config.json`から読む。
+登録: `ops/install-cron.sh <repo-dir> "<cron式>"`(sudo不要・`# grower:<name>`タグで複数サイト共存) / `ops/install-timer.sh <name> <repo-dir> "<OnCalendar>"`(systemd・`templates/*.tmpl`展開・ユニット名`grower-<name>`)。初期構築は`ops/setup.sh <repo-dir> <git-url>`。
+追加プロジェクトは installer 1発（コピペ不要）。各サイトは別曜日で共存。
+
 ## サイト側に置くもの（grower-coreには持たない）
 `grower.config.json`(siteName/siteDomain/seeds/queries/branches…) / content(src/content) / `seo-research/pipeline/*.json`(backlog) / `scripts/indexnow-submit.mjs` / `scripts/capture-hero-screenshots.mjs` / categories・schema(src)。
 

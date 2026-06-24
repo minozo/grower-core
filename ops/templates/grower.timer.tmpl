@@ -1,0 +1,10 @@
+[Unit]
+Description=Run __NAME__ grower weekly (__ONCALENDAR__)
+
+[Timer]
+OnCalendar=__ONCALENDAR__
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

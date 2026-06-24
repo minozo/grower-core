@@ -1,0 +1,13 @@
+[Unit]
+Description=__NAME__ grower weekly (article generation + light publish)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=__USER__
+WorkingDirectory=__REPO_DIR__
+ExecStart=__CORE_DIR__/ops/run-grower.sh __REPO_DIR__
+# 1GB保護: メモリ上限と低優先度（同居プロセスとの競合緩和）
+MemoryMax=700M
+Nice=10
