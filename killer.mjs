@@ -13,7 +13,7 @@ import { loadCompanies } from './lib/content.mjs'
 import { config } from './lib/config.mjs'
 import { serpTop, hasCreds } from './lib/serp.mjs'
 import { aggregateMoat } from './lib/moat.mjs'
-import { containedFrac } from './lib/text.mjs'
+import { containedFrac, overlap } from './lib/text.mjs'
 
 const cfg = config()
 
@@ -35,13 +35,19 @@ async function main() {
   const companies = loadCompanies()
   const moat = aggregateMoat(companies)
 
-  // ③ 共食い判定 + ④ スポーク候補（headKWの文字がどれだけ記事タイトルに含まれるか＝関連度）
+  // ③ 共食い判定 + ④ スポーク候補（2指標を使い分ける）
+  //   upgrade(昇格/統合の候補) = cannibalize gate と同じトークン重なりで判定（短いheadKWで
+  //     共通漢字が偶然含まれる文字包含の誤検知を避ける。G3 の実判定とブリーフ表示を揃える）。
+  //   spoke(関連リンク) = 文字包含率（関連度の広い拾い上げに強い）。
   const articles = loadArticles()
-  const ranked = articles
-    .map((a) => ({ slug: a.slug, title: a.title, score: containedFrac(headKW, [a.title]) }))
-    .sort((x, y) => y.score - x.score)
-  const upgrade = ranked.find((r) => r.score >= 0.85) || null // ほぼ同一head＝新規でなく昇格/統合を検討
-  const spokes = ranked.filter((r) => r.score >= 0.5 && r.slug !== upgrade?.slug).slice(0, 3).map((r) => `/articles/${r.slug}/`)
+  const scored = articles.map((a) => ({ slug: a.slug, title: a.title, tok: overlap(headKW, a.title), rel: containedFrac(headKW, [a.title]) }))
+  const nearest = scored.filter((r) => r.tok >= 0.6).sort((x, y) => y.tok - x.tok)[0]
+  const upgrade = nearest ? { slug: nearest.slug, title: nearest.title, score: nearest.tok } : null
+  const spokes = scored
+    .filter((r) => r.rel >= 0.5 && r.slug !== upgrade?.slug)
+    .sort((x, y) => y.rel - x.rel)
+    .slice(0, 3)
+    .map((r) => `/articles/${r.slug}/`)
   const hub = cfg.killerHub || null
 
   // ① SERP逆算（認証があるときだけ）
