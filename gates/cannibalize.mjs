@@ -3,18 +3,22 @@
 // usage: node scripts/grower/gates/cannibalize.mjs "<狙うKW or タイトル案>"
 //   exit 0 = 新規でOK / exit 1 = 既存と重複懸念（要差別化 or 既存強化に切替）
 import { loadArticles, ROOT } from '../lib/content.mjs'
+import { config } from '../lib/config.mjs'
 import fs from 'node:fs'
 import path from 'node:path'
 
-// 既存の主要ページタイトル（記事以外）も対象に含める
+// 既存の主要ページタイトル（記事以外）も共食い対象に含める。サイト非依存：
+// トップ(/) + 商用ハブ(config.killerHub) のページタイトルを拾う（ppu固有のハードコードを廃止）。
 function pageTitles() {
+  const cfg = config()
+  const routes = [...new Set(['/', cfg.killerHub].filter(Boolean))]
   const out = []
-  const idx = path.join(ROOT, 'src/pages/index.astro')
-  const lp = path.join(ROOT, 'src/pages/photography-agency/index.astro')
-  for (const [label, p] of [['/', idx], ['/photography-agency/', lp]]) {
+  for (const route of routes) {
+    const rel = route === '/' ? 'src/pages/index.astro' : `src/pages/${route.replace(/^\/|\/$/g, '')}/index.astro`
+    const p = path.join(ROOT, rel)
     if (fs.existsSync(p)) {
       const m = fs.readFileSync(p, 'utf-8').match(/title[=:]\s*["'`]([^"'`]+)/)
-      if (m) out.push({ slug: label, title: m[1] })
+      if (m) out.push({ slug: route, title: m[1] })
     }
   }
   return out
