@@ -151,7 +151,9 @@ switch (cmd) {
   case 'weekly': weekly(); break
   case 'autorun': autorun(rest); break
   case 'company-autorun': autorun(rest, 'company-autorun-prompt.mjs'); break
+  case 'killer': process.exit(sh('node', [path.join(here, 'killer.mjs'), ...rest]).status); break
+  case 'killer-run': autorun(rest, 'killer-prompt.mjs'); break
   case 'publish': publish(rest); break
   default:
-    console.log('usage: orchestrator.mjs <status|agents|gates|publish "msg">')
+    console.log('usage: orchestrator.mjs <status|agents|gates|measure|scout|company-scout|weekly|autorun|company-autorun|killer "headKW"|killer-run|publish "msg">')
 }

@@ -12,9 +12,12 @@
 ## 使い方（各サイトdirから）
 ```
 cd ~/github/ppujp
-npm run grow status|agents|gates|measure|scout|company-scout|weekly|autorun|company-autorun|publish ["msg"] [--light]
+npm run grow status|agents|gates|measure|scout|company-scout|weekly|autorun|company-autorun|killer "headKW"|killer-run|publish ["msg"] [--light]
 ```
 サイトの package.json に薄いラッパー（`grow`/`gates` → `node ${GROWER_CORE_DIR:-../grower-core}/...`）を置く。
+
+## killer（head KW で上位を抜くキラーページ）
+`grow killer "<headKW>"` = 決定論的にブリーフ生成（SERP逆算＝live上位ページ / 自社データ堀＝掲載企業の独自集計(都道府県・カテゴリ分布) / 共食い・昇格判定 / 内部リンク計画）→ `seo-research/pipeline/killers.json` 保存。`grow killer-run` = 最新ブリーフを素材にLLMが本文執筆→gates→公開（autorun harness再利用）。数値はコードが確定させLLMは改変しない＝G1。config: `killerHub`(押し上げる商用ハブ) / `killerMinChars`。lib: `serp.mjs`(SERP取得)・`moat.mjs`(独自集計・ニッチ非依存)・`text.mjs`(日本語近さ判定)。
 
 ## ゲート（gates/）
 slop-lint(§7 `article-writing-rules.md`) / linkcheck / datecheck / dedup-company(G1) / cannibalize(G3) / autorun実体検証(HEAD diff)。
